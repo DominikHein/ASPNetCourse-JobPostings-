@@ -20,9 +20,7 @@
 
             if (JobTitle == null)
             {
-
                 JobTitle = string.Empty;
-
             }
 
             if (JobLocation == null)
