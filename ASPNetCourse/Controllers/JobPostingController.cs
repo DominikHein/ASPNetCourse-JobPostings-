@@ -13,16 +13,50 @@ namespace ASPNetCourse.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            var jobPostingsFromDb = _context.JobPostings.Where(x => x.OwnerUsername == User.Identity.Name).ToList();
+            return View(jobPostingsFromDb);
         }
 
         public IActionResult CreateEditJobPosting(int Id)
         {
+
+            if (Id != 0)
+            {
+                var jobPostingFromDb = _context.JobPostings.SingleOrDefault(x => x.Id == Id);
+                if (jobPostingFromDb != null)
+                {
+                    return View(jobPostingFromDb);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
             return View();
+        }
+
+        public IActionResult DeleteJobPosting(int Id)
+        {
+
+            if (Id == 0)
+                return BadRequest();
+
+            var jobPostingFromDb = _context.JobPostings.SingleOrDefault(x => x.Id == Id);
+
+            if (jobPostingFromDb != null)
+                return NotFound();
+
+            _context.JobPostings.Remove(jobPostingFromDb);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
         public IActionResult CreateEditJob(JobPosting jobPosting, IFormFile companyImage)
         {
+
+            jobPosting.OwnerUsername = User.Identity.Name;
+
             if (companyImage != null)
             {
                 //IFormFile Type zu Byte Array 
@@ -55,6 +89,7 @@ namespace ASPNetCourse.Controllers
                 jobFromDb.JobTitle = jobPosting.JobTitle;
                 jobFromDb.Salary = jobPosting.Salary;
                 jobFromDb.StartDate = jobPosting.StartDate;
+                jobFromDb.OwnerUsername = jobPosting.OwnerUsername;
                 _context.JobPostings.Add(jobPosting);
             }
 

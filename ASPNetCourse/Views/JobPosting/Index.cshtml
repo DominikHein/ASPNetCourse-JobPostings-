@@ -1,5 +1,35 @@
-﻿@{
+﻿@model List<JobPosting>
+@{
     ViewData["Title"] = "Deine Inserate";
 }
 
 <a class="btn btn-primary" asp-controller="JobPosting" asp-action="CreateEditJobPosting">Neues Inserat anlegen</a>
+
+<table class="table table-bordered table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Job Title</th>
+            <th>Ort</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach(JobPosting jobPosting in Model)
+            {
+                <tr>
+                    <td>@jobPosting.Id</td>
+                    <td>@jobPosting.CompanyName</td>
+                    <td>@jobPosting.JobTitle</td>
+                    <td>@jobPosting.JobLocation</td>
+                    <td>
+                        <a asp-route-id="@jobPosting.Id" asp-controller="JobPosting" asp-action="CreateEditJobPosting" class="btn btn-warning">Bearbeiten</a>
+                        <a asp-route-id="@jobPosting.Id" asp-controller="JobPosting" asp-action="DeleteJobPosting" class="btn btn-danger">Löschen</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

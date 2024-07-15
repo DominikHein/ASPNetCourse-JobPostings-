@@ -11,6 +11,8 @@
     </div>
     <div class="card-body">
         @* Form mit Feldern aus dem JobPosting Model *@
+
+        <input hidden asp-for="Id" />
         <form asp-controller="JobPosting" asp-action="CreateEditJob" method="post" enctype="multipart/form-data">
             <div class="section">
                 <div class="row form-group">
