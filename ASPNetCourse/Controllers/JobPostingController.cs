@@ -1,9 +1,11 @@
 ﻿using ASPNetCourse.Data;
 using ASPNetCourse.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASPNetCourse.Controllers
 {
+    [Authorize]
     public class JobPostingController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,7 +24,14 @@ namespace ASPNetCourse.Controllers
 
             if (Id != 0)
             {
+
                 var jobPostingFromDb = _context.JobPostings.SingleOrDefault(x => x.Id == Id);
+
+                if (jobPostingFromDb.OwnerUsername != User.Identity.Name)
+                {
+                    return Unauthorized();
+                }
+
                 if (jobPostingFromDb != null)
                 {
                     return View(jobPostingFromDb);
@@ -34,22 +43,21 @@ namespace ASPNetCourse.Controllers
             }
             return View();
         }
-
-        public IActionResult DeleteJobPosting(int Id)
+        [HttpPost]
+        public IActionResult DeleteJobPostingById(int Id)
         {
-
             if (Id == 0)
                 return BadRequest();
 
             var jobPostingFromDb = _context.JobPostings.SingleOrDefault(x => x.Id == Id);
 
-            if (jobPostingFromDb != null)
+            if (jobPostingFromDb == null) // Korrigierte Bedingung
                 return NotFound();
 
             _context.JobPostings.Remove(jobPostingFromDb);
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return Ok();
         }
 
         public IActionResult CreateEditJob(JobPosting jobPosting, IFormFile companyImage)
@@ -70,6 +78,18 @@ namespace ASPNetCourse.Controllers
 
             if (jobPosting.Id == 0)
             {
+                if (companyImage == null)
+                {
+                    jobPosting.CompanyImage = new byte[0];
+                }
+                if (jobPosting.JobTitle == null) jobPosting.JobTitle = "";
+                if (jobPosting.JobLocation == null) jobPosting.JobLocation = "";
+                if (jobPosting.JobDescription == null) jobPosting.JobDescription = "";
+                if (jobPosting.CompanyName == null) jobPosting.CompanyName = "";
+                if (jobPosting.ContactPhone == null) jobPosting.ContactPhone = "";
+                if (jobPosting.ContactMail == null) jobPosting.ContactMail = "";
+                if (jobPosting.ContactWebsite == null) jobPosting.ContactWebsite = "";
+                if (jobPosting.OwnerUsername == null) jobPosting.OwnerUsername = "";
                 _context.JobPostings.Add(jobPosting); //Posting der Datenbank hinzufügen
             }
             else
